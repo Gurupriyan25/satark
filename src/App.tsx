@@ -13,6 +13,7 @@ import SurveyDesigner from './components/SurveyDesigner';
 import AgentManagement from './components/AgentManagement';
 import AgentDashboard from './components/AgentDashboard';
 import SatarkCopilot from './components/SatarkCopilot';
+import OCRManagement from './components/OCRManagement';
 import { Bot } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {
@@ -72,6 +73,8 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
         );
+      case 'ocr-management':
+        return <OCRManagement />;
       default:
         return <Dashboard />;
     }

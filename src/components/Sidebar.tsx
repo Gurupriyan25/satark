@@ -16,7 +16,9 @@ import {
   Smartphone,
   Lock,
   Globe,
-  Activity
+  Activity,
+  Camera,
+  FileText as FileTextIcon
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -76,6 +78,12 @@ const Sidebar: React.FC<SidebarProps> = ({ activeModule, onModuleChange }) => {
       name: 'Compliance & Privacy', 
       icon: Lock, 
       color: 'text-error'
+    },
+    { 
+      id: 'ocr-management', 
+      name: 'OCR Management', 
+      icon: Camera, 
+      color: 'text-purple-600'
     },
     { 
       id: 'settings', 
