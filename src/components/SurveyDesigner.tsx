@@ -14,7 +14,7 @@ import {
   Trash2
 } from "lucide-react";
 
-const OPENAI_API_KEY = "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"; // your key
+const OPENAI_API_KEY = "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"; // your key
 
 const SurveyDesigner: React.FC = () => {
   const [aiPrompt, setAiPrompt] = useState("");
@@ -32,24 +32,24 @@ const SurveyDesigner: React.FC = () => {
     { type: "rating", label: "Rating", icon: Star },
   ];
 
- const handleAIGenerate = async () => {
+const handleAIGenerate = async () => {
   if (!aiPrompt.trim()) return;
   setIsGenerating(true);
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`, // store in .env
       },
       body: JSON.stringify({
-        model: "gpt-4o", // change if not available
+        model: "deepseek/deepseek-chat",
         messages: [
           {
             role: "system",
             content:
-              "You are an AI survey generator. Output ONLY valid JSON array of survey questions with fields: id, type, question, required, options.",
+              "You are an AI survey generator. Output ONLY a JSON array of survey questions with fields: id, type, question, required, options.",
           },
           { role: "user", content: aiPrompt },
         ],
@@ -57,19 +57,16 @@ const SurveyDesigner: React.FC = () => {
     });
 
     const data = await response.json();
-    console.log("OpenAI raw response:", data);
+    console.log("OpenRouter raw response:", data);
 
-    // Check for API error
     if (data.error) {
-      console.error("OpenAI API Error:", data.error.message);
-      alert(`OpenAI Error: ${data.error.message}`);
+      alert(`API Error: ${data.error.message}`);
       setIsGenerating(false);
       return;
     }
 
     const aiContent = data?.choices?.[0]?.message?.content;
     if (!aiContent) {
-      console.error("No AI content found in response:", data);
       alert("No AI content found in API response");
       setIsGenerating(false);
       return;
@@ -84,7 +81,7 @@ const SurveyDesigner: React.FC = () => {
       parsedQuestions = [];
     }
 
-    setGeneratedQuestions(parsedQuestions);
+    setQuestions((prev) => [...prev, ...parsedQuestions]);
   } catch (error) {
     console.error("Error generating survey:", error);
     alert(`Error: ${error.message}`);
@@ -92,6 +89,7 @@ const SurveyDesigner: React.FC = () => {
 
   setIsGenerating(false);
 };
+
 
  const addQuestion = (type: string) => {
     const newQuestion = {
