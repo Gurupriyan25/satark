@@ -49,56 +49,65 @@ const SurveyDesigner: React.FC = () => {
     { code: 'ml', name: 'മലയാളം', flag: '🇮🇳' },
   ];
 
-  const handleAIGenerate = async () => {
-    if (!aiPrompt.trim()) return;
+const handleAIGenerate = async () => {
+  if (!aiPrompt.trim()) return;
 
-    setIsGenerating(true);
-    try {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are an AI survey generator. Based on the user's prompt, return a JSON array of survey questions. Each question should have: id (string), type (text | multiple-choice | single-choice | dropdown | date | number | rating), question (string), required (boolean), and options (array for choice types, else empty array)."
-            },
-            {
-              role: "user",
-              content: aiPrompt
-            }
-          ],
-          temperature: 0.7,
-        }),
-      });
+  setIsGenerating(true);
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an AI survey generator. Based on the user's prompt, return ONLY a valid JSON array of survey questions with fields: id, type, question, required, and options[]."
+          },
+          {
+            role: "user",
+            content: aiPrompt
+          }
+        ],
+        temperature: 0.7,
+      }),
+    });
 
-      const data = await response.json();
-      let parsedQuestions = [];
-      try {
-        parsedQuestions = JSON.parse(data.choices[0].message.content);
-      } catch (err) {
-        console.error("Error parsing AI output", err);
-        parsedQuestions = [];
-      }
+    const data = await response.json();
+    console.log("OpenAI raw response:", data); // Debug
 
-      // Ensure IDs are strings
-      parsedQuestions = parsedQuestions.map(q => ({
-        ...q,
-        id: q.id.toString()
-      }));
-
-      setQuestions(prev => [...prev, ...parsedQuestions]);
-    } catch (error) {
-      console.error("Error generating survey:", error);
+    const aiContent = data?.choices?.[0]?.message?.content;
+    if (!aiContent) {
+      console.error("No AI content found in response:", data);
+      setIsGenerating(false);
+      return;
     }
-    setIsGenerating(false);
-    setAiPrompt('');
-  };
+
+    let parsedQuestions = [];
+    try {
+      parsedQuestions = JSON.parse(aiContent);
+    } catch (err) {
+      console.error("Error parsing AI output. Raw content:", aiContent);
+      parsedQuestions = [];
+    }
+
+    parsedQuestions = parsedQuestions.map(q => ({
+      ...q,
+      id: q.id.toString()
+    }));
+
+    setQuestions(prev => [...prev, ...parsedQuestions]);
+  } catch (error) {
+    console.error("Error generating survey:", error);
+  }
+  setIsGenerating(false);
+  setAiPrompt('');
+};
+
 
   const addQuestion = (type: string) => {
     const newQuestion = {
