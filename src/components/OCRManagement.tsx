@@ -12,7 +12,8 @@ import {
   AlertTriangle,
   Clock,
   BarChart3,
-  Zap
+  Zap,
+  Globe
 } from 'lucide-react';
 
 interface OCRDocument {
@@ -24,6 +25,8 @@ interface OCRDocument {
   documentType: string;
   extractedText: string;
   confidence: number;
+  ocrEngine: 'tesseract' | 'paddleocr';
+  detectedLanguages: string[];
   timestamp: Date;
   status: 'pending' | 'reviewed' | 'approved' | 'rejected';
   imageUrl: string;
@@ -48,6 +51,8 @@ const OCRManagement: React.FC = () => {
       documentType: 'Survey Form',
       extractedText: 'Name: राम प्रसाद शर्मा\nAge: 45\nOccupation: किसान\nIncome: ₹25,000 per month\nEducation: 12th Pass\nFamily Size: 5 members',
       confidence: 94,
+      ocrEngine: 'tesseract',
+      detectedLanguages: ['hin', 'eng'],
       timestamp: new Date('2024-01-15T10:30:00'),
       status: 'pending',
       imageUrl: '/api/placeholder/400/600',
@@ -62,6 +67,8 @@ const OCRManagement: React.FC = () => {
       documentType: 'Identity Verification',
       extractedText: 'Aadhaar Number: XXXX XXXX 1234\nName: PRIYA PATEL\nDOB: 15/08/1985\nAddress: 123 Gandhi Road, Surat, Gujarat',
       confidence: 98,
+      ocrEngine: 'paddleocr',
+      detectedLanguages: ['eng'],
       timestamp: new Date('2024-01-15T09:15:00'),
       status: 'approved',
       imageUrl: '/api/placeholder/400/600',
@@ -76,10 +83,28 @@ const OCRManagement: React.FC = () => {
       documentType: 'Income Certificate',
       extractedText: 'Certificate No: INC/2024/001\nName: Mohammed Ali Khan\nAnnual Income: ₹3,50,000\nIssued by: Tehsildar Office\nDate: 10/01/2024',
       confidence: 91,
+      ocrEngine: 'tesseract',
+      detectedLanguages: ['eng'],
       timestamp: new Date('2024-01-14T16:45:00'),
       status: 'reviewed',
       imageUrl: '/api/placeholder/400/600',
       surveyId: 'SUR003'
+    },
+    {
+      id: 'OCR004',
+      agentId: 'AG004',
+      agentName: 'Tamil Agent',
+      district: 'Chennai',
+      state: 'Tamil Nadu',
+      documentType: 'Tamil Survey Form',
+      extractedText: 'பெயர்: முருகன் குமார்\nவயது: 42\nதொழில்: ஆசிரியர்\nமாத வருமானம்: ₹45,000\nகல்வி: முதுகலை\nகுடும்ப அளவு: 4 உறுப்பினர்கள்',
+      confidence: 96,
+      ocrEngine: 'paddleocr',
+      detectedLanguages: ['tam', 'eng'],
+      timestamp: new Date('2024-01-14T14:20:00'),
+      status: 'pending',
+      imageUrl: '/api/placeholder/400/600',
+      surveyId: 'SUR004'
     }
   ];
 
@@ -144,10 +169,29 @@ ${doc.extractedText}
 
   const stats = [
     { label: 'Total Documents', value: documents.length, icon: FileText, color: 'text-blue-600' },
+    { label: 'Tamil Documents', value: documents.filter(d => d.detectedLanguages.includes('tam')).length, icon: Globe, color: 'text-green-600' },
     { label: 'Pending Review', value: documents.filter(d => d.status === 'pending').length, icon: Clock, color: 'text-yellow-600' },
     { label: 'Approved', value: documents.filter(d => d.status === 'approved').length, icon: CheckCircle, color: 'text-green-600' },
     { label: 'Avg Confidence', value: `${Math.round(documents.reduce((acc, doc) => acc + doc.confidence, 0) / documents.length)}%`, icon: BarChart3, color: 'text-purple-600' }
   ];
+
+  const getLanguageNames = (langCodes: string[]) => {
+    const langMap: { [key: string]: string } = {
+      'eng': 'English',
+      'hin': 'हिंदी',
+      'tam': 'தமிழ்',
+      'tel': 'తెలుగు',
+      'ben': 'বাংলা',
+      'guj': 'ગુજરાતી',
+      'kan': 'ಕನ್ನಡ',
+      'mal': 'മലയാളം',
+      'mar': 'मराठी',
+      'ori': 'ଓଡ଼ିଆ',
+      'pan': 'ਪੰਜਾਬੀ',
+      'urd': 'اردو'
+    };
+    return langCodes.map(code => langMap[code] || code).join(', ');
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -263,6 +307,10 @@ ${doc.extractedText}
                           <Calendar className="h-4 w-4" />
                           <span>{doc.timestamp.toLocaleDateString()}</span>
                         </div>
+                        <div className="flex items-center space-x-1">
+                          <Zap className="h-4 w-4" />
+                          <span className="capitalize">{doc.ocrEngine}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -270,7 +318,7 @@ ${doc.extractedText}
                   <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Extracted Text (Confidence: {doc.confidence}%)
+                        Extracted Text (Confidence: {doc.confidence}%) - {getLanguageNames(doc.detectedLanguages)}
                       </span>
                       <div className="flex items-center space-x-2">
                         <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
@@ -372,6 +420,14 @@ ${doc.extractedText}
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Confidence:</span>
                       <span className="text-gray-900 dark:text-white">{selectedDocument.confidence}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">OCR Engine:</span>
+                      <span className="text-gray-900 dark:text-white capitalize">{selectedDocument.ocrEngine}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Languages:</span>
+                      <span className="text-gray-900 dark:text-white">{getLanguageNames(selectedDocument.detectedLanguages)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Timestamp:</span>

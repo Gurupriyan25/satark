@@ -95,7 +95,7 @@ const AgentDashboard: React.FC<AgentDashboardProps> = () => {
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Documents Scanned</p>
+                  <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Documents Processed</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">23</p>
                 </div>
                 <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl">
@@ -126,7 +126,7 @@ const AgentDashboard: React.FC<AgentDashboardProps> = () => {
                     <Camera className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">Document scanned and processed</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">Tamil document processed with PaddleOCR</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">4 hours ago</p>
                   </div>
                 </div>
