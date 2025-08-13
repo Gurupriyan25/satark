@@ -32,59 +32,68 @@ const SurveyDesigner: React.FC = () => {
     { type: "rating", label: "Rating", icon: Star },
   ];
 
-  // AI Generate Handler
-  const handleAIGenerate = async () => {
-    if (!aiPrompt.trim()) return;
-    setIsGenerating(true);
+ const handleAIGenerate = async () => {
+  if (!aiPrompt.trim()) return;
+  setIsGenerating(true);
 
-    try {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are an AI survey generator. Based on the user's request, return ONLY a valid JSON array of survey questions. Each question should have: id (string), type (text, multiple-choice, single-choice, dropdown, date, number, rating), question (string), required (boolean), and options (array for choice types). No extra text, just JSON.",
-            },
-            { role: "user", content: aiPrompt },
-          ],
-          temperature: 0.7,
-        }),
-      });
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o", // change if not available
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an AI survey generator. Output ONLY valid JSON array of survey questions with fields: id, type, question, required, options.",
+          },
+          { role: "user", content: aiPrompt },
+        ],
+      }),
+    });
 
-      const data = await response.json();
-      console.log("OpenAI raw response:", data);
+    const data = await response.json();
+    console.log("OpenAI raw response:", data);
 
-      const aiContent = data?.choices?.[0]?.message?.content;
-      if (!aiContent) {
-        console.error("No AI content found in response:", data);
-        setIsGenerating(false);
-        return;
-      }
-
-      let parsedQuestions = [];
-      try {
-        parsedQuestions = JSON.parse(aiContent);
-      } catch (err) {
-        console.error("Error parsing AI output:", aiContent);
-        parsedQuestions = [];
-      }
-
-      setGeneratedQuestions(parsedQuestions);
-    } catch (error) {
-      console.error("Error generating survey:", error);
+    // Check for API error
+    if (data.error) {
+      console.error("OpenAI API Error:", data.error.message);
+      alert(`OpenAI Error: ${data.error.message}`);
+      setIsGenerating(false);
+      return;
     }
 
-    setIsGenerating(false);
-  };
+    const aiContent = data?.choices?.[0]?.message?.content;
+    if (!aiContent) {
+      console.error("No AI content found in response:", data);
+      alert("No AI content found in API response");
+      setIsGenerating(false);
+      return;
+    }
 
-  const addQuestion = (type: string) => {
+    let parsedQuestions;
+    try {
+      parsedQuestions = JSON.parse(aiContent);
+    } catch (err) {
+      console.error("Error parsing AI output:", aiContent);
+      alert("Error parsing AI output. Check console for raw output.");
+      parsedQuestions = [];
+    }
+
+    setGeneratedQuestions(parsedQuestions);
+  } catch (error) {
+    console.error("Error generating survey:", error);
+    alert(`Error: ${error.message}`);
+  }
+
+  setIsGenerating(false);
+};
+
+ const addQuestion = (type: string) => {
     const newQuestion = {
       id: Date.now().toString(),
       type,
