@@ -14,7 +14,7 @@ import {
   Trash2
 } from "lucide-react";
 
-const OPENAI_API_KEY = "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"; // your key
+const OPENROUTER_API_KEY = "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"; // your key
 
 const SurveyDesigner: React.FC = () => {
   const [aiPrompt, setAiPrompt] = useState("");
