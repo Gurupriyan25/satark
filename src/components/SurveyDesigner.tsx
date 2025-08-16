@@ -137,16 +137,14 @@ const SurveyDesigner: React.FC = () => {
       
       Make questions relevant to Indian government surveys, use appropriate question types, and ensure cultural sensitivity.`;
 
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer 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",
-          "HTTP-Referer": window.location.origin,
-          "X-Title": "SATARK.AI Survey Generator"
+          "Authorization": "Bearer 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"
         },
         body: JSON.stringify({
-          model: "deepseek/deepseek-chat",
+          model: "gpt-3.5-turbo",
           messages: [
             {
               role: "system",
