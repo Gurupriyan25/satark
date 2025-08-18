@@ -14,6 +14,7 @@ import AgentManagement from './components/AgentManagement';
 import AgentDashboard from './components/AgentDashboard';
 import SatarkCopilot from './components/SatarkCopilot';
 import OCRManagement from './components/OCRManagement';
+import DataValidation from './components/DataValidation';
 import { Bot } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {
@@ -47,14 +48,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         );
       case 'data-quality':
-        return (
-          <div className="p-6 flex items-center justify-center h-96">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Data Quality & Validation</h2>
-              <p className="text-gray-600 dark:text-gray-400">Coming soon - AI-powered data validation</p>
-            </div>
-          </div>
-        );
+        return <DataValidation />;
       case 'reporting':
         return (
           <div className="p-6 flex items-center justify-center h-96">

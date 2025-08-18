@@ -56,8 +56,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeModule, onModuleChange }) => {
       ]
     },
     { 
-      id: 'validation-engine', 
-      name: 'Validation Engine', 
+      id: 'data-quality', 
+      name: 'Data Quality & Validation', 
       icon: ShieldCheck, 
       color: 'text-warning'
     },
