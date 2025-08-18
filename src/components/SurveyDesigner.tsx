@@ -137,26 +137,25 @@ const SurveyDesigner: React.FC = () => {
       
       Make questions relevant to Indian government surveys, use appropriate question types, and ensure cultural sensitivity.`;
 
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyCALvtfpkcLImCYawFZBKiRtzjWkjSzVrY`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer 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"
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "gpt-3.5-turbo",
-          messages: [
+          contents: [
             {
-              role: "system",
-              content: "You are an expert survey designer for Indian government surveys. Generate professional, culturally appropriate surveys. Always respond with valid JSON only, no additional text."
-            },
-            {
-              role: "user",
-              content: enhancedPrompt
+              parts: [
+                {
+                  text: `You are an expert survey designer for Indian government surveys. Generate professional, culturally appropriate surveys. Always respond with valid JSON only, no additional text.\n\n${enhancedPrompt}`
+                }
+              ]
             }
           ],
-          temperature: 0.7,
-          max_tokens: 2000
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 2000
+          }
         }),
       });
 
@@ -170,7 +169,7 @@ const SurveyDesigner: React.FC = () => {
         throw new Error(data.error.message || "API request failed");
       }
 
-      const aiContent = data?.choices?.[0]?.message?.content;
+      const aiContent = data?.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!aiContent) {
         throw new Error("No content received from AI");
       }
