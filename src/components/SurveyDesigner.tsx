@@ -137,7 +137,7 @@ const SurveyDesigner: React.FC = () => {
       
       Make questions relevant to Indian government surveys, use appropriate question types, and ensure cultural sensitivity.`;
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyCALvtfpkcLImCYawFZBKiRtzjWkjSzVrY`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyCALvtfpkcLImCYawFZBKiRtzjWkjSzVrY`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
